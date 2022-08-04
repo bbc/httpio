@@ -3,30 +3,17 @@ from unittest import IsolatedAsyncioTestCase, mock
 from httpio_bbc import HTTPIOFile
 
 import aiohttp
-import random
 import re
 
 from io import SEEK_CUR, SEEK_END
+
+from .random_source_data import DATA, OTHER_DATA, ASCII_DATA, ASCII_LINES
 
 
 def async_func(f):
     async def __inner(*args, **kwargs):
         return f(*args, **kwargs)
     return __inner
-
-
-# 8 MB of random data for the HTTP requests to return
-DATA = bytes(random.randint(0, 0xFF)
-             for _ in range(0, 8*1024*1024))
-
-OTHER_DATA = bytes(random.randint(0, 0xFF)
-                   for _ in range(0, 8*1024*1024))
-
-ASCII_LINES = ["Line0\n",
-               "Line the first\n",
-               "Line Returns\n",
-               "Line goes forth"]
-ASCII_DATA = b''.join(line.encode('ascii') for line in ASCII_LINES)
 
 
 IOBaseError = OSError
@@ -51,6 +38,7 @@ class TestAsyncHTTPIOFile(IsolatedAsyncioTestCase):
 
         self.data_source = DATA
         self.error_code = None
+        self.head_error_code = None
 
         def _head(url, **kwargs):
             m = mock.MagicMock(spec=aiohttp.ClientResponse)
@@ -62,7 +50,7 @@ class TestAsyncHTTPIOFile(IsolatedAsyncioTestCase):
                     'Accept-Ranges': 'bytes'
                 }
             else:
-                m.status_code = self.error_code
+                m.status_code = self.error_code or self.head_error_code
                 m.raise_for_status.side_effect = HTTPException
             return m
 
@@ -241,3 +229,24 @@ class TestAsyncHTTPIOFile(IsolatedAsyncioTestCase):
     async def test_seekable(self):
         async with HTTPIOFile('http://www.example.com/test/', 1024) as io:
             self.assertTrue(await io.seekable())
+
+    async def test_ignores_head_error_when_no_head_request_set(self):
+        """If the no_head_request flag is set, an error returned by HEAD should be ignored"""
+        self.head_error_code = 404
+        async with HTTPIOFile('http://www.example.com/test/', 1024, no_head_request=True):
+            pass
+
+    async def test_throws_exception_when_get_returns_error_when_no_head_request_set(self):
+        self.error_code = 404
+        with self.assertRaises(HTTPException):
+            async with HTTPIOFile('http://www.example.com/test/', 1024, no_head_request=True):
+                pass
+
+    async def test_retries_with_get_when_head_returns_403(self):
+        """Test data can be read when the GET works but the HEAD request returns 403
+
+        This happens when given an S3 pre-signed URL, because they only support one method
+        """
+        self.head_error_code = 403
+        async with HTTPIOFile('http://www.example.com/test/', 1024):
+            pass

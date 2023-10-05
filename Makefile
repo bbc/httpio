@@ -1,3 +1,8 @@
+# Pin Python version below 3.12.0. aiohttp is built from source for Python 3.12 and that failed.
+# Regular review of issue scheduled in https://www.pivotaltracker.com/n/projects/2147543#
+CLOUDFIT_BASE_NAME:=python
+CLOUDFIT_BASE_LABEL:=3.11
+
 # Disable type checking in this repo, since there are no type annotations
 MS_DOCKER_MYPY:=FALSE
 

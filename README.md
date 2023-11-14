@@ -17,6 +17,11 @@ maintained by BBC R&D's Cloudfit Production team, with some additional
 functionality we needed, and applying our (opinionated!) CI and repo management
 processes.
 
+Documentation
+-------------
+
+* [Library reference](https://bbc.github.io/httpio/httpio_bbc/httpio_bbc.html)
+
 Installation
 ------------
 

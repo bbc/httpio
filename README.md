@@ -31,7 +31,7 @@ R&D Artifactory in the ap-python repo.
 Usage
 -----
 
-.. code-block:: python
+```python
 
     import zipfile
     import httpio_bbc as httpio
@@ -40,10 +40,7 @@ Usage
     with httpio.open(url) as fp:
         zf = zipfile.ZipFile(fp)
         print(zf.namelist())
-
-.. _file-like: https://docs.python.org/3/glossary.html#term-file-object
-
-.. _BufferedIOBase: https://docs.python.org/3/library/io.html#io.BufferedIOBase
+```
 
 Development
 -----------
@@ -62,10 +59,7 @@ the top level of the repository.
 Continuous Integration
 ----------------------
 
-This repository includes a Jenkinsfile which makes use of custom steps defined
-in a BBC internal library for use on our own Jenkins instances. As such it will
-not be immediately useable outside of a BBC environment, but may still serve as
-inspiration and an example of how to implement CI for this package.
+This repository includes [GitHub Actions workflows](./.github/workflows/) for CI. The shared workflows are centrally managed and should not be modified.
 
 A Makefile is provided at the top-level of the repository to run common tasks.
 Run `make`` in the top directory of this repository to see what actions are available.

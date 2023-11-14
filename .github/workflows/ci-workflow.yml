@@ -49,5 +49,5 @@ jobs:
       forceDocsUpload: ${{ inputs.forceDocsUpload == true }}
       pythonVersion: ${{ inputs.pythonVersion || '3.10' }}
       commontoolingBranch: ${{ inputs.commontoolingBranch || 'main' }}
-      enableArtifactoryPip: true
+      enableArtifactory: true
     secrets: inherit
